@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 const database = require('../model');
 
-const SECRET = "tempsecret";
+const { SECRET } = process.env;
 
 /**
  * Unique key for decrypting database primary key, encrypted message.
