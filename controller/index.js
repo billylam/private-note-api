@@ -44,17 +44,25 @@ const readMessage = async (usersKey) => {
   const primaryKey = encryptKey(usersKey);
   const row = await database.getMessage(primaryKey);
   if (row) {
-    const { encryptedmessage, initvector } = row; // Note to self: pg lowercases everything anyway
-    return decryptMessage(usersKey, Buffer.from(encryptedmessage, 'hex'), initvector);
+    // Note to self: pg lowercases everything anyway
+    const {
+      encryptedmessage, initvector, isread, readdate,
+    } = row;
+    if (isread) return { error: `This message was already read by a user on ${readdate}` };
+
+    const decrypted = decryptMessage(usersKey, Buffer.from(encryptedmessage, 'hex'), initvector)
+    return { message: decrypted };
   }
-  return null;
+  return { error: 'Invalid key.' };
+};
+
+const deleteMessage = async (usersKey) => {
+  const primaryKey = encryptKey(usersKey);
+  await database.clearMessage(primaryKey);
 };
 
 module.exports = {
-  // generateBase64Key,
-  // encryptKey,
-  // encryptMessage,
-  // decryptMessage,
   createMessage,
   readMessage,
+  deleteMessage,
 };
