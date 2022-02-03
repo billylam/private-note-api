@@ -11,6 +11,11 @@ app.use(helmet());
 app.use(morgan('combined'));
 app.use('/', routes);
 
-app.listen(3001, () => {
-  console.log('Listening on port 3001');
+let port = process.env.PORT;
+if (port == null || port === '') {
+  port = 8000;
+}
+
+app.listen(port, () => {
+  console.log(`Listening on port ${port}`);
 });

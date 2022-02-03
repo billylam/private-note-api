@@ -1,2 +1,6 @@
 node_modules/
 .envrc
+npm-debug.log
+.DS_Store
+/*.env
+ui-debug.log
