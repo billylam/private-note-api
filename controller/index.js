@@ -1,11 +1,7 @@
-const database = require('../model');
 const crypto = require('crypto');
+const database = require('../model');
 
 const SECRET = "tempsecret";
-
-const post = () => {
-  database.post();
-};
 
 /**
  * Unique key for decrypting database primary key, encrypted message.
@@ -21,33 +17,44 @@ const generateBase64Key = () => crypto.randomBytes(32).toString('base64');
  */
 const encryptKey = (base64Key) => crypto.createHmac('sha256', SECRET).update(base64Key).digest('base64');
 
-const encryptMessage = (message, base64key) => {
-  const initVector = crypto.randomBytes(16).toString('base64');
-  const cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(base64key, 'base64'), Buffer.from(initVector, 'base64'));
-  let encryptedData = cipher.update(message, 'utf-8', 'hex');
+const encryptMessage = (message, usersKey) => {
+  const initVector = crypto.randomBytes(16);
+  const cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(usersKey, 'base64'), initVector);
+  let encryptedData = cipher.update(message, 'utf8', 'hex');
   encryptedData += cipher.final('hex');
   return { encryptedMessage: encryptedData, initVector };
 };
 
-const decryptMessage = (base64key, encryptedMessage, initVector) => {
-  const decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(base64key, 'base64'), Buffer.from(initVector, 'base64'));
-  let decryptedData = decipher.update(encryptedMessage, 'hex', 'utf-8');
+const decryptMessage = (usersKey, encryptedMessage, initVector) => {
+  const decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(usersKey, 'base64'), initVector);
+  let decryptedData = decipher.update(encryptedMessage, 'hex', 'utf8');
   decryptedData += decipher.final('utf8');
   return decryptedData;
 };
 
-const create = (message) => {
+const createMessage = async (message) => {
+  const usersKey = generateBase64Key();
+  const primaryKey = encryptKey(usersKey);
+  const { encryptedMessage, initVector } = encryptMessage(message, usersKey);
+  await database.createMessage(primaryKey, encryptedMessage, initVector);
+  return usersKey;
+};
 
-}
-
-const destroy = (key) => {
-
-}
+const readMessage = async (usersKey) => {
+  const primaryKey = encryptKey(usersKey);
+  const row = await database.getMessage(primaryKey);
+  if (row) {
+    const { encryptedmessage, initvector } = row; // Note to self: pg lowercases everything anyway
+    return decryptMessage(usersKey, Buffer.from(encryptedmessage, 'hex'), initvector);
+  }
+  return null;
+};
 
 module.exports = {
-  post,
-  generateBase64Key,
-  encryptKey,
-  encryptMessage,
-  decryptMessage,
+  // generateBase64Key,
+  // encryptKey,
+  // encryptMessage,
+  // decryptMessage,
+  createMessage,
+  readMessage,
 };

@@ -3,10 +3,16 @@ const controller = require('../controller');
 
 const secret = 'tempsecret';
 
-routes.get('/', (req, res) => {
-  const key = controller.generateBase64Key();
-  const { encryptedMessage, initVector } = controller.encryptMessage('gimme a double double with peppers', key);
-  console.log(controller.decryptMessage(key, encryptedMessage, initVector));
+routes.get('/', async (req, res) => {
+  const key = await controller.createMessage('gimme a double double with peppers');
+  res.status(200).json({ key }).end();
+});
+
+routes.post('/decrypt', async (req, res) => {
+  console.log(req.body);
+  if (!req.body.key) res.status(400).json({ error: 'No key passed.' });
+  const message = await controller.readMessage(req.body.key);
+  console.log(message);
   res.status(200).end();
 });
 
