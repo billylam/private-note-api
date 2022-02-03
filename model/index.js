@@ -55,6 +55,18 @@ class Database {
     }
     return res.rows[0];
   }
+
+  async findMessage(primaryKey) {
+    const query = 'SELECT noteId, isRead, isDestroyed, readDate from messages where noteId = $1';
+    let res;
+    try {
+      res = await this.client.query(query, [primaryKey]);
+    } catch (e) {
+      console.log('An error has occurred');
+      console.log(e);
+    }
+    return res.rows[0];
+  }
 }
 
 module.exports = new Database();

@@ -61,8 +61,22 @@ const deleteMessage = async (usersKey) => {
   await database.clearMessage(primaryKey);
 };
 
+const findMessage = async (usersKey) => {
+  const primaryKey = encryptKey(usersKey);
+  const row = await database.findMessage(primaryKey);
+  if (row) {
+    const {
+      isread, isdestroyed, readdate,
+    } = row;
+    if (isread || isdestroyed) return { error: `This message was already read by a user on ${readdate}` };
+    return { isValid: 'true' };
+  }
+  return { error: 'Invalid key.' };
+};
+
 module.exports = {
   createMessage,
   readMessage,
   deleteMessage,
+  findMessage,
 };
