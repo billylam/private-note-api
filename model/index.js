@@ -1,5 +1,14 @@
 const { Client } = require('pg');
 
+// Schema
+// noteId_tx varchar(255) (primary key)
+// encryptedMessage_tx varchar(255)
+// initVector_tx varchar(255)
+// readerIP_tx varchar(16)
+// read_bt boolean
+// destroyed_bt boolean
+// timestamp created
+// timestamp destroyed
 class Database {
   constructor() {
     this.client = new Client({

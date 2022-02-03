@@ -1,8 +1,12 @@
 const routes = require('express').Router();
 const controller = require('../controller');
 
+const secret = 'tempsecret';
+
 routes.get('/', (req, res) => {
-  controller.post();
+  const key = controller.generateBase64Key();
+  const { encryptedMessage, initVector } = controller.encryptMessage('gimme a double double with peppers', key);
+  console.log(controller.decryptMessage(key, encryptedMessage, initVector));
   res.status(200).end();
 });
 
@@ -12,8 +16,6 @@ routes.get('/messages', async (req, res) => {
 });
 
 routes.post('/messages/', async (req, res) => {
-  // if () res.status(200).end();
-  // else res.status(400).json({ error: 'No rows updated' });
   res.status(200).end();
 });
 
