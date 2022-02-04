@@ -1,6 +1,10 @@
 const routes = require('express').Router();
 const controller = require('../controller');
 
+routes.get('/', (req, res) => {
+  res.status(200).end();
+});
+
 routes.post('/lookup', async (req, res) => {
   if (!req.body.key) res.status(400).json({ error: 'No key passed' }).end();
   const message = await controller.findMessage(req.body.key);
