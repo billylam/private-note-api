@@ -20,6 +20,18 @@ Returns: a private decryption key.
 ```
 
 ```
+POST https://private-note-api.herokuapp.com/lookup
+
+JSON Body:
+{
+    "key": "XU3T2/BRpcquVxsX57GH1LBZrjyyBTsecqhusd/EH4="
+}
+
+Returns: { "isValid" : true } if found
+{ "error": "Some error message" } if not found or already read
+```
+
+```
 POST https://private-note-api.herokuapp.com/decrypt
 
 JSON Body:
