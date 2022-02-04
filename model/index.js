@@ -3,13 +3,13 @@ const { Client } = require('pg');
 // Note to self: pg lowercases everything anyway
 // CREATE TABLE messages(
 //    noteId bytea NOT NULL,
-//    encryptedMessage varchar(255),
+//    encryptedMessage varchar,
 //    initVector bytea,
 //    readerIp varchar(16),
 //    isRead boolean DEFAULT false,
 //    isDestroyed boolean DEFAULT false,
-//    createdDate date DEFAULT CURRENT_DATE,
-//    readDate date,
+//    createdDate timestamp DEFAULT CURRENT_TIMESTAMP,
+//    readDate timestamp,
 //    PRIMARY KEY( noteId )
 // );
 class Database {
@@ -35,7 +35,7 @@ class Database {
   }
 
   async clearMessage(primaryKey) {
-    const query = 'UPDATE messages SET encryptedMessage = null, initVector = null, isRead = true, isDestroyed = true, readDate = CURRENT_DATE where noteId = $1';
+    const query = 'UPDATE messages SET encryptedMessage = null, initVector = null, isRead = true, isDestroyed = true, readDate = CURRENT_TIMESTAMP where noteId = $1';
     try {
       await this.client.query(query, [primaryKey]);
     } catch (e) {
